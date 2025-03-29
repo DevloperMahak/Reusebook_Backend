@@ -7,6 +7,11 @@ const { passwordReset } = require("../controllers/user.controller");
 const {Schema} = mongoose;
 
 const registerSchema = new mongoose.Schema({
+  UserType: {
+        type: String,
+        enum: ["Student", "Shopkeeper"],
+        required: true
+      },
     FirstName:{
     type:String,
     require:true
@@ -15,43 +20,46 @@ const registerSchema = new mongoose.Schema({
     type:String,
     require:true
    },
-   Gender:{
+   Address:{
     type:String,
     require:true
    },
-   DOB:{
+   State:{
     type:String,
     require:true
    },
-   BirthPlace:{
+   City:{
     type:String,
     require:true
    },
+   Gender: {
+    type: String,
+  },
+     // Shopkeeper-specific fields
+     ShopName: {
+        type: String
+      },
+      OwnerName: {
+        type: String
+      },
+      ShopCity: {
+        type: String
+      },
+      ShopAddress: {
+        type: String
+      },
+      ShopState: {
+        type: String
+      },
+      Pincode:{
+        type:String,
+        require:true
+       },
    PhNo:{
     type:String,
     require:true
    },
    WhatsappNo:{
-    type:String,
-    require:true
-   },
-   CollegeName:{
-    type:String,
-    require:true
-   },
-   CollegeState:{
-    type:String,
-    require:true
-   },
-   Branch:{
-    type:String,
-    require:true
-   },
-   Degree:{
-    type:String,
-    require:true
-   },
-   PassYear:{
     type:String,
     require:true
    },
