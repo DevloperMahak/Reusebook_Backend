@@ -1,7 +1,7 @@
 const { JsonWebTokenError } = require('jsonwebtoken');
 const registerModel = require('../models/register_model');
 const postedbookModel = require('../models/bookposting_model');
-const bookimageModel = require('../models/bookimages_model');
+const Image =require('../models/ImageModel')
 const OTPModel = require('../models/OTP');
 const Grid = require('gridfs-stream');
 const multer = require('multer');
@@ -23,6 +23,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 
 
+
 const otpStore = {};
 
 
@@ -30,7 +31,7 @@ const otpStore = {};
 // Multer memory storage for handling the image file
 const storage = multer.diskStorage({
   destination:(req,file,cb)=>{
-    cb(null,"./uploads");
+    cb(null,"./uploads");// Uploads folder
   },
   filename:(any,file,cb)=>{
    cb(null,req.decoded.EmailText,".jpg")
@@ -62,9 +63,47 @@ const upload = multer({
 class UserService{
   
     
-    static async registerUser(FirstName,LastName,Gender,DOB,BirthPlace,PhNo,WhatsappNo,CollegeName,CollegeState,Branch,Degree,PassYear,EmailText,PasswordNum,ConfirmPasswordNum){
+    static async registerUser(
+      UserType,
+      FirstName,
+      LastName,
+      Gender,
+      Address,
+      State,
+      City,
+      PhNo,
+      WhatsappNo,
+      EmailText,
+      PasswordNum,
+      ConfirmPasswordNum,
+      userType,
+      ShopName,
+      OwnerName,
+      ShopCity,
+      ShopAddress,
+      ShopState,
+      Pincode){
         try{
-         const createUser = new registerModel({FirstName,LastName,Gender,DOB,BirthPlace,PhNo,WhatsappNo,CollegeName,CollegeState,Branch,Degree,PassYear,EmailText,PasswordNum,ConfirmPasswordNum});
+         const createUser = new registerModel({
+          UserType,
+          FirstName,
+          LastName,
+          Gender,
+          Address,
+          State,
+          City,
+          PhNo,
+          WhatsappNo,
+          EmailText,
+          PasswordNum,
+          ConfirmPasswordNum,
+          userType,
+          ShopName,
+          OwnerName,
+          ShopCity,
+          ShopAddress,
+          ShopState,
+          Pincode});
 
     // Check if password and confirm password match
     if (PasswordNum !== ConfirmPasswordNum) {
@@ -85,14 +124,14 @@ class UserService{
    
     
     static async checkUser(EmailText){
-        try{
-        return await registerModel.findOne({EmailText});
-          
+      try{
+      return await registerModel.findOne({EmailText});
         
-        }catch(err){
-            throw err;
-        }
-    }
+      
+      }catch(err){
+          throw err;
+      }
+  }
 
     static async comparePassword(PasswordNum){
       try{
