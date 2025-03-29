@@ -11,16 +11,100 @@ const generateOTP = require('../helpers/generateOTP');
 const loginOTP = require('../helpers/jwt_helper');
 const sendMail = require('../helpers/sendEmail');
 const jwt = require('jsonwebtoken')
+const Image =require('../models/ImageModel')
 
+// Upload Profile Image
+exports.uploadProfileImage =async (req, res) => {
+  try {
+    const { userId } = req.body;
+    console.log("Received userId:", userId);
+    console.log("Received file:", req.file);
+    if (!req.file || !userId) return res.status(400).json({ error: 'No file uploaded' });
 
+    const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+    const savedImage = await Image.create({ imageUrl });
 
+    res.status(200).json({
+      message: 'Image uploaded successfully',
+      data: savedImage,
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Server Error', details: error.message });
+  }
+};
+
+// Get Image by User ID
+exports.getImageByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const image = await UserImage.findOne({ userId }).sort({ uploadedAt: -1 });
+
+    if (!image) return res.status(404).json({ error: 'No image found' });
+
+    res.status(200).json({ image });
+  } catch (err) {
+    res.status(500).json({ error: 'Error retrieving image' });
+  }
+};
+
+// Delete Image by User ID
+exports.deleteImage = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const image = await UserImage.findOneAndDelete({ userId });
+
+    if (!image) return res.status(404).json({ error: 'Image not found' });
+
+    res.status(200).json({ message: 'Image deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Error deleting image' });
+  }
+};
 
 exports.register = async(req,res,next)=>{
     console.log("Result",req.body);
     try{
-     const{FirstName,LastName,Gender,DOB,BirthPlace,PhNo,WhatsappNo,CollegeName,CollegeState,Branch,Degree,PassYear,EmailText,PasswordNum,ConfirmPasswordNum} = req.body;
+     const{
+      UserType,
+      FirstName,
+      LastName,
+      Gender,
+      Address,
+      State,
+      City,
+      PhNo,
+      WhatsappNo,
+      EmailText,
+      PasswordNum,
+      ConfirmPasswordNum,
+      userType,
+      ShopName,
+      OwnerName,
+      ShopCity,
+      ShopAddress,
+      ShopState,
+      Pincode} = req.body;
      
-     const successRes = await Userservice.registerUser(FirstName,LastName,Gender,DOB,BirthPlace,PhNo,WhatsappNo,CollegeName,CollegeState,Branch,Degree,PassYear,EmailText,PasswordNum,ConfirmPasswordNum);
+     const successRes = await Userservice.registerUser(
+      UserType,
+      FirstName,
+      LastName,
+      Gender,
+      Address,
+      State,
+      City,
+      PhNo,
+      WhatsappNo,
+      EmailText,
+      PasswordNum,
+      ConfirmPasswordNum,
+      userType,
+      ShopName,
+      OwnerName,
+      ShopCity,
+      ShopAddress,
+      ShopState,
+      Pincode);
 
      res.json({status:true,success:"User Registered Successfully"});
 
@@ -57,7 +141,8 @@ exports.login = async(req,res,next)=>{
      let tokenData = { id: user.id, EmailText: user.EmailText };
      const token = await loginOTP.generateToken(tokenData,"mahakSuperSecretKey", '1h' );
      
-     res.status(200).json({status:true,token:token})
+   
+     res.status(200).json({status:true,token:token,userId: user.id})
     //res.json({ message: 'Login successful', token });
 
     }catch(error){
@@ -65,54 +150,6 @@ exports.login = async(req,res,next)=>{
       return res.status(500).json({ status: false, message: 'Server error' });
     }
 }
-
-/*UPLOAD_PATH= 'http://localhost:5000/image1upload'
-
-// Configure Multer storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null,UPLOAD_PATH ); // Path where images will be saved
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.image1)); // Set file name to current timestamp
-  }
-});
-
-// Initialize Multer
-const upload1 = multer({
-  storage: storage,
-  fileFilter: (req, file, cb) => {
-    const filetypes = /jpeg|jpg|png|gif/;
-    const mimetype = filetypes.test(file.mimetype);
-    if (mimetype) {
-      return cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed'), false);
-    }
-  }
-}).single('image1'); // The name of the file input field
-
-exports.bookfrontimage = async(req,res,next)=>{
-  upload1(req, res, async (err) => {
-    if (err) {
-      return res.status(400).json({ message: err.message });
-    }
-
-    const image1 = `http://localhost:5000/image1upload/${req.file.filename}`;
-
-    try {
-      const updatedUser = await Userservice.saveUserImage(image1);
-      return res.status(200).json({
-        message: 'Image uploaded successfully',
-        user: updatedUser,
-        imageUrl: image1,
-      });
-    } catch (error) {
-      return res.status(500).json({ message: error.message });
-    }
-  });
-  
-}*/
 
 
 exports.bookfrontimage = async(req, res) => {
@@ -191,63 +228,6 @@ exports.getBooks = async (req, res, next) => {
     next(error);
   }
 };
-
-/*exports.generateOTP = async(req, res) => {
-    const { EmailText } = req.body;
-    
-    // Check if email is already registered (this example uses an in-memory DB)
-    if (!EmailText || !EmailText.includes('@')) {
-      return res.status(400).send('Invalid email');
-    }
-    try {
-        // Send OTP to user's email
-        await Userservice.sendOTPEmail(EmailText, otp);
-        res.send('OTP sent to email');
-      } catch (error) {
-        console.error(error);
-        res.status(500).send('Error sending OTP');
-      }
-}*/
-
-/*exports.generateOTP = (req, res) => {
-  const { EmailText } = req.body;
-
-  if (!EmailText) {
-    return res.status(400).send('Email is required');
-  }
-
-  const otp = generateOTP(); // Generate OTP
-  Userservice.sendOTPEmail(EmailText, otp);  // Send OTP via email
-
-  // Store OTP temporarily (e.g., in memory or database)
-  // In production, you might want to store it in a database with expiration time
-  otpStore[EmailText] = { otp, otpExpire: Date.now() + 10 * 60 * 1000 }; // 10 minutes expiry
-
-
-
-  res.status(200).send('OTP sent to your email');
-};*/
-/*exports.generateOTP = async(req, res,next) => {
-  console.log("Result",req.body);
-  const { EmailText } = req.body;
-  
-  // Check if email is already registered (this example uses an in-memory DB)
-
-  const user = await Userservice.checkUser(EmailText);
-
-  if (!EmailText || !EmailText.includes('@') || !user) {
-    return res.status(400).send('Invalid email');
-  }
-  Userservice.sendOTPEmail(req.body,(error,results)=>{
-   if(error){
-    return next(error);
-   }
-   return res.status(200).send({
-    message : "OTP sent to your email",
-    data : results
-   })
-  });
-}*/
 
 exports.generateOTP = async(req, res) => {
 try{
