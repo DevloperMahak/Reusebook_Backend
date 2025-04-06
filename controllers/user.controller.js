@@ -229,6 +229,15 @@ exports.getBooks = async (req, res, next) => {
   }
 };
 
+exports.getShopkeepers = async (req, res) => {
+  try {
+    const shopkeepers = await Userservice.getAllShopkeepers();
+    res.status(200).json(shopkeepers);
+  } catch (error) {
+    res.status(500).json({ message: error.message || 'Failed to fetch shopkeepers' });
+  }
+};
+
 exports.generateOTP = async(req, res) => {
 try{
   const { EmailText ,subject,message,duration} = req.body;
