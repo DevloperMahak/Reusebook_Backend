@@ -1,1 +1,8 @@
+# Environment files
  .env
+# Node.js dependencies
+node_modules/
+# Ignore local DB dumps or temp data
+dump/
+*.mongo
+*.bson
