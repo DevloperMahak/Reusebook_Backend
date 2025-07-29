@@ -18,7 +18,8 @@ app.use(express.urlencoded({
     extended:true
 }))
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// ✅ Static folder setup (to access uploaded images)
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 app.use('/',userRouter);
 
