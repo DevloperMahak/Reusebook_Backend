@@ -31,7 +31,7 @@ const otpStore = {};
 // Multer memory storage for handling the image file
 const storage = multer.diskStorage({
   destination:(req,file,cb)=>{
-    cb(null,"./uploads");// Uploads folder
+    cb(null, path.join(__dirname, '../../uploads')); // relative to this file's location
   },
   filename:(any,file,cb)=>{
    cb(null,req.decoded.EmailText,".jpg")
