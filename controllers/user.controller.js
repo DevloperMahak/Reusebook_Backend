@@ -11,25 +11,38 @@ const generateOTP = require('../helpers/generateOTP');
 const loginOTP = require('../helpers/jwt_helper');
 const sendMail = require('../helpers/sendEmail');
 const jwt = require('jsonwebtoken')
-const Image =require('../models/ImageModel')
+const ImageModel =require('../models/ImageModel')
+const fs = require('fs');
+const path = require('path');
+
 
 // Upload Profile Image
-exports.uploadProfileImage =async (req, res) => {
+exports.uploadProfileImage = async (req, res) => {
   try {
     const { userId } = req.body;
+    console.log('--- Upload Request Received ---');
     console.log("Received userId:", userId);
     console.log("Received file:", req.file);
-    if (!req.file || !userId) return res.status(400).json({ error: 'No file uploaded' });
+
+    if (!req.file || !userId) {
+      return res.status(400).json({ error: 'Image or userId missing' });
+    }
 
     const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-    const savedImage = await Image.create({ imageUrl });
+
+    const savedImage = await ImageModel.create({
+      userId,
+      imageUrl,
+    });
 
     res.status(200).json({
+      success: true,
       message: 'Image uploaded successfully',
+      imageUrl: `/uploads/${req.file.filename}`, // 👈 Important for Flutter
       data: savedImage,
     });
   } catch (error) {
-    res.status(500).json({ error: 'Server Error', details: error.message });
+    res.status(500).json({ error: 'Server error', details: error.message });
   }
 };
 
@@ -41,7 +54,7 @@ exports.getImageByUserId = async (req, res) => {
 
     if (!image) return res.status(404).json({ error: 'No image found' });
 
-    res.status(200).json({ image });
+   res.status(200).json({ imageUrl: `/uploads/${image.image}` });
   } catch (err) {
     res.status(500).json({ error: 'Error retrieving image' });
   }
@@ -51,15 +64,27 @@ exports.getImageByUserId = async (req, res) => {
 exports.deleteImage = async (req, res) => {
   try {
     const { userId } = req.params;
-    const image = await UserImage.findOneAndDelete({ userId });
+    const image = await ImageModel.findOneAndDelete({ userId });
 
     if (!image) return res.status(404).json({ error: 'Image not found' });
 
+    // Also remove file from disk
+    const imagePath = path.join(__dirname, '..', 'uploads', path.basename(image.imageUrl));
+    fs.unlink(imagePath, (err) => {
+      if (err) {
+        console.error('❌ Failed to delete file:', err);
+      } else {
+        console.log('✅ File deleted:', imagePath);
+      }
+    });
+
     res.status(200).json({ message: 'Image deleted successfully' });
   } catch (err) {
+    console.error('❌ Server error:', err);  // <-- ADD THIS
     res.status(500).json({ error: 'Error deleting image' });
   }
 };
+
 
 exports.register = async(req,res,next)=>{
     console.log("Result",req.body);
