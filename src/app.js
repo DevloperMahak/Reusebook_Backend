@@ -25,7 +25,14 @@ app.use('/',userRouter);
 
 app.use(bodyParser.json());
 
-app.use(cors());
+// Allow requests from your frontend URL
+app.use(cors(
+  {
+    origin: 'https://reusebook-frontend.onrender.com',  // replace with your frontend URL
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+  }
+));// Enables cross-origin requests
 
 
 module.exports = app;
