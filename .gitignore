@@ -6,3 +6,5 @@ node_modules/
 dump/
 *.mongo
 *.bson
+#uploads
+uploads/
