@@ -10,29 +10,24 @@ const path = require('path');
 
 const app = express();
 
-app.use(express.json());
+// ✅ Allow requests from frontend (CORS should come early)
+app.use(cors({
+  origin: 'https://reusebook-frontend.onrender.com',  // ✅ Replace with your deployed frontend
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 
+// ✅ Middleware setup
+app.use(express.json());
+app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.use(express.urlencoded({
-    extended:true
-}))
-
-// ✅ Static folder setup (to access uploaded images)
+// ✅ Static folder to serve uploaded images
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
-app.use('/',userRouter);
-
-app.use(bodyParser.json());
-
-// Allow requests from your frontend URL
-app.use(cors(
-  {
-    origin: 'https://reusebook-frontend.onrender.com',  // replace with your frontend URL
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
-  }
-));// Enables cross-origin requests
+// ✅ Routes
+app.use('/', userRouter);
 
 
 module.exports = app;
