@@ -10,12 +10,15 @@ const path = require('path');
 
 const app = express();
 
-// ✅ CORS setup for frontend
-const FRONTEND_URL = 'https://reusebook-frontend.onrender.com';
+const allowedOrigins = [
+  'https://reusebook-frontend.onrender.com', //deployed
+  'http://localhost:5000',      // Add your dev port
+  'http://127.0.0.1:5000'
+];
 
 // ✅ Allow requests from frontend (CORS should come early)
 app.use(cors({
-  origin: FRONTEND_URL, 
+  origin: allowedOrigins,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }));
