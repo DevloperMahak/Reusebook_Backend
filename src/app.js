@@ -26,6 +26,11 @@ app.use(cookieParser());
 // ✅ Static folder to serve uploaded images
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
+// ✅ Health route (used by UptimeRobot)
+app.get('/health', (req, res) => {
+  res.status(200).send('Server is alive 🚀');
+});
+
 // ✅ Routes
 app.use('/', userRouter);
 
