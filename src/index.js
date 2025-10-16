@@ -1,13 +1,11 @@
 
 const app = require('./app');
 require('dotenv').config();
-const express = require("express");
 const mongoose = require("mongoose");
 const path = require('path');
-const bcrypt = require('bcrypt');
 const connectdb = require('../config/db');
 const registerModel = require('../models/register_model');
-const Grid = require('gridfs-stream');
+
 
 
 
@@ -23,7 +21,7 @@ app.get('/',(req,res)=>{
 });
 
 app.listen(PORT,()=>{
-    console.log(`successfully connected to http://localhost:${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
 
 
