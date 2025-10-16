@@ -10,23 +10,20 @@ const path = require('path');
 
 const app = express();
 
-const allowedOrigins = [
-  'https://reusebook-frontend.onrender.com', // deployed frontend
-  'http://localhost:5000', // backend testing
-  'http://localhost:3000', // Flutter Web default
-  'http://localhost:8080'
-];
+// ✅ CORS setup for frontend
+const FRONTEND_URL = 'https://reusebook-frontend.onrender.com';
 
 // ✅ Allow requests from frontend (CORS should come early)
 app.use(cors({
-  origin: function(origin, callback){
-    if (!origin || allowedOrigins.indexOf(origin) !== -1){
-      callback(null, true)
-    } else {
-      callback(new Error('Not allowed by CORS'))
-    }
-  }, 
+  origin: FRONTEND_URL, 
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
+
+// ✅ Preflight handler for all routes
+app.options('*', cors({
+  origin: FRONTEND_URL,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true
 }));
 
@@ -44,8 +41,13 @@ app.get('/health', (req, res) => {
   res.status(200).send('Server is alive 🚀');
 });
 
-// ✅ Routes
+// ✅ API routes
 app.use('/', userRouter);
+
+// ✅ Catch-all for unknown routes
+app.use((req, res) => {
+  res.status(404).json({ status: false, message: 'Route not found' });
+});
 
 
 module.exports = app;
