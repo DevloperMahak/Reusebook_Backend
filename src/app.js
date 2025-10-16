@@ -25,7 +25,7 @@ app.use(cors({
 
 // ✅ Preflight handler for all routes
 app.options('*', cors({
-  origin: FRONTEND_URL,
+  origin: allowedOrigins,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true
 }));
