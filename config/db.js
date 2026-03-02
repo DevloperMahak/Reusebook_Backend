@@ -6,13 +6,14 @@ const registerModel = require("../models/register_model");
 const conn = mongoose.connection;
 
 //check database connected or not
-mongoose
-  .connect(mongoURI)
-  .then(() => {
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
     console.log("Database connected successfully.");
-  })
-  .catch(() => {
-    console.log("Database not connected successfully.");
-  });
+  } catch (error) {
+    console.error("Database connection failed:", error.message);
+    process.exit(1);
+  }
+};
 
-module.exports = connection;
+module.exports = connectDB;
